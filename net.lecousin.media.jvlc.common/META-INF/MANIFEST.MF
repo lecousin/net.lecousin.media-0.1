@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: JVLC Common
+Bundle-SymbolicName: net.lecousin.media.jvlc.common
+Bundle-Version: 0.1.0
+Bundle-Activator: net.lecousin.media.jvlc.common.eclipse.internal.EclipsePlugin
+Bundle-Vendor: Guillaume LE COUSIN
+Require-Bundle: org.eclipse.core.runtime
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-ActivationPolicy: lazy
+Export-Package: net.lecousin.media.jvlc.client,
+ net.lecousin.media.jvlc.server

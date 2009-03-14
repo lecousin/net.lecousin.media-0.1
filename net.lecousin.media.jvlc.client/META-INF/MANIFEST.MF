@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: JVLC Client
+Bundle-SymbolicName: net.lecousin.media.jvlc.client;singleton:=true
+Bundle-Version: 0.1.0
+Bundle-Activator: net.lecousin.media.jvlc.client.eclipse.internal.EclipsePlugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ net.lecousin.framework,
+ net.lecousin.framework.media,
+ net.lecousin.media.jvlc.common;bundle-version="0.1.0"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-Vendor: Guillaume LE COUSIN
+Bundle-ClassPath: lib/jna.jar,
+ .
+Export-Package: net.lecousin.media.jvlc.client.eclipse

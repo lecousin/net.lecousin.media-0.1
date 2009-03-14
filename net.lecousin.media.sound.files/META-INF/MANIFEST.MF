@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Media - ID3 Format
+Bundle-SymbolicName: net.lecousin.media.sound.files
+Bundle-Version: 0.1.0
+Bundle-Activator: net.lecousin.media.sound.files.internal.EclipsePlugin
+Bundle-Vendor: Guillaume LE COUSIN
+Require-Bundle: org.eclipse.core.runtime,
+ net.lecousin.framework;bundle-version="0.1.0",
+ org.eclipse.core.filesystem;bundle-version="1.2.0"
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-ActivationPolicy: lazy
+Export-Package: net.lecousin.media.sound.files.audio,
+ net.lecousin.media.sound.files.audio.mp3,
+ net.lecousin.media.sound.files.playlist,
+ net.lecousin.media.sound.files.playlist.m3u

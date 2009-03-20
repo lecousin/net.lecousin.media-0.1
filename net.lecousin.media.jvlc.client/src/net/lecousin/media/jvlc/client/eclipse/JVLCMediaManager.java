@@ -117,7 +117,7 @@ public class JVLCMediaManager implements MediaPlayerPlugin {
 			success();
 			return media;
 		}
-		catch (RemoteException e) { if (restart(e)) return newMedia(uri);  }
+		catch (RemoteException e) { if (restart(e)) return newMedia(uri); }
 		finally { JVLCClient.endTransaction(); }
 		return null;
 	}

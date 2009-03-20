@@ -35,6 +35,11 @@ public class JVLCMediaManager extends UnicastRemoteObject implements IJVLCMediaM
 		String str = uri.toASCIIString().replace("+", "%2B");
 		if (str.startsWith("file:/") && !str.startsWith("file:///"))
 			str = "file:///" + str.substring(6);
+		if (str.startsWith("file:///") && str.endsWith(".cda")) {
+			int i = str.lastIndexOf('/');
+			if (i > 0)
+				str = "cdda://" + str.substring(8, i);
+		}
 		long id = JVLCServer.idManager.allocate();
 		debug("newMedia: create MediaStore");
 		MediaStore store = new MediaStore(id, new MediaDescriptor(JVLCServer.jvlc, str), new JVLCMedia(id));
@@ -104,11 +109,11 @@ public class JVLCMediaManager extends UnicastRemoteObject implements IJVLCMediaM
 	
 	public double getVolume() {
 		debug("getVolume");
-		return (double)JVLCServer.jvlc.getAudio().getVolume();
+		return (double)JVLCServer.jvlc.getAudio().getVolume()*2;
 	}
 	public void setVolume(double volume) {
 		debug("setVolume");
-		JVLCServer.jvlc.getAudio().setVolume((int)(volume));
+		JVLCServer.jvlc.getAudio().setVolume((int)(volume/2));
 	}
 	private Boolean mute = null;
 	public boolean getMute() {

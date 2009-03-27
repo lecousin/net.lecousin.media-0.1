@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="net.lecousin.media.jsound.decoder">
+      <decoder
+            class="net.lecousin.media.jsound.mp3.JSoundMP3Decoder"
+            filetype="audio/mp3">
+      </decoder>
+   </extension>
+
+</plugin>

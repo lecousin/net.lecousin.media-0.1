@@ -44,6 +44,7 @@ public class PlayerThread extends Thread {
 			if (sample == null)
 				break;
 			byte[] data = sample.getValue2();
+			if (data == null || data.length == 0) continue;
 			if (source == null || !format.matches(sample.getValue1())) {
 				format = sample.getValue1();
 				try {
@@ -67,11 +68,11 @@ public class PlayerThread extends Thread {
 				lastTime = time;
 			}
 		} while (!stopped);
-		stopped = true;
 		if (stopped)
 			plugin.stopped.fire(media);
 		else
 			plugin.ended.fire(media);
+		stopped = true;
 		if (source != null)
 			source.close();
 		ended = true;

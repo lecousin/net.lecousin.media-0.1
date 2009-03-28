@@ -7,7 +7,7 @@ import javazoom.jl.decoder.BitstreamException;
 import javazoom.jl.decoder.Decoder;
 import javazoom.jl.decoder.Header;
 import javazoom.jl.decoder.SampleBuffer;
-import net.lecousin.framework.Pair;
+import net.lecousin.framework.Triple;
 import net.lecousin.framework.io.LCPartialBufferedInputStream;
 import net.lecousin.framework.log.Log;
 import net.lecousin.media.jsound.AudioDecoder;
@@ -32,7 +32,7 @@ public class JSoundMP3Decoder implements AudioDecoder {
 		decoder = new Decoder();
 	}
 
-	public synchronized Pair<AudioFormat,byte[]> decodeSample() {
+	public synchronized Triple<AudioFormat,byte[],Double> decodeSample() {
 		try {
 			Header h = bitstream.readFrame();
 			
@@ -40,8 +40,17 @@ public class JSoundMP3Decoder implements AudioDecoder {
 				return null;
 				
 			// sample buffer set when decoder constructed
-			SampleBuffer output = (SampleBuffer)decoder.decodeFrame(h, bitstream);
-								
+			SampleBuffer output;
+			try { output = (SampleBuffer)decoder.decodeFrame(h, bitstream); }
+			catch (ArrayIndexOutOfBoundsException e) {
+				bitstream.closeFrame();
+				return new Triple<AudioFormat,byte[],Double>(null, null, (double)h.ms_per_frame());
+			}
+			
+			if (output.getBufferLength() == 0) {
+				bitstream.closeFrame();
+				return new Triple<AudioFormat,byte[],Double>(null, null, (double)h.ms_per_frame());
+			}
 			byte[] sample = toByteArray(output.getBuffer(), 0, output.getBufferLength());
 			
 			bitstream.closeFrame();
@@ -52,11 +61,26 @@ public class JSoundMP3Decoder implements AudioDecoder {
 					  true,
 					  false);
 			
-			return new Pair<AudioFormat,byte[]>(fmt, sample);
+			return new Triple<AudioFormat,byte[],Double>(fmt, sample, (double)h.ms_per_frame());
 		} catch (Throwable t) {
 			if (Log.error(this))
 				Log.error(this, "Error while decoding MP3 sample", t);
-			return null;
+			return new Triple<AudioFormat,byte[],Double>(null, null, (double)0);
+		}
+	}
+	
+	public double skipSample() {
+		try {
+			Header h = bitstream.readFrame();
+			if (h==null)
+				return -1;
+			double skipped = h.ms_per_frame();
+			bitstream.closeFrame();
+			return skipped;
+		} catch (Throwable t) {
+			if (Log.error(this))
+				Log.error(this, "Error while decoding MP3 sample", t);
+			return 0;
 		}
 	}
 

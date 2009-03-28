@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import javax.sound.sampled.AudioFormat;
 
 import net.lecousin.framework.Pair;
+import net.lecousin.framework.Triple;
 import net.lecousin.media.jsound.AudioDecoder;
 
 public class DecoderThread extends Thread {
@@ -16,7 +17,7 @@ public class DecoderThread extends Thread {
 	
 	AudioDecoder decoder;
 	private static long NB_BUFFERED_SAMPLES = 100;
-	private LinkedList<Pair<AudioFormat,byte[]>> samples = new LinkedList<Pair<AudioFormat,byte[]>>();
+	private LinkedList<Triple<AudioFormat,byte[],Double>> samples = new LinkedList<Triple<AudioFormat,byte[],Double>>();
 	private boolean stopped = false;
 	private double curTime = 0;
 	
@@ -26,14 +27,14 @@ public class DecoderThread extends Thread {
 			while (!stopped && samples.size() >= NB_BUFFERED_SAMPLES) {
 				try { Thread.sleep(250); } catch (InterruptedException e) { break; }
 			}
-			Pair<AudioFormat,byte[]> sample;
+			Triple<AudioFormat,byte[],Double> sample;
 			synchronized (decoder) {
 				sample = decoder.decodeSample();
-			}
-			if (sample == null)
-				break;
-			synchronized (sample) {
-				samples.add(sample);
+				if (sample == null)
+					break;
+				synchronized (samples) {
+					samples.add(sample);
+				}
 			}
 		} while (!stopped);
 		stopped = true;
@@ -47,14 +48,14 @@ public class DecoderThread extends Thread {
 	public Pair<AudioFormat,byte[]> nextSample() {
 		synchronized (this) {
 			do {
-				Pair<AudioFormat,byte[]> p = null;
+				Triple<AudioFormat,byte[],Double> p = null;
 				synchronized (samples) {
 					if (!samples.isEmpty())
 						p = samples.removeFirst();
 				}
 				if (p != null) {
-					curTime += 1000*((double)1000/(double)p.getValue1().getSampleRate());
-					return p;
+					curTime += p.getValue3();
+					return new Pair<AudioFormat,byte[]>(p.getValue1(),p.getValue2());
 				}
 				if (stopped) return null;
 				try { Thread.sleep(1); } catch (InterruptedException e) { return null; }
@@ -69,21 +70,31 @@ public class DecoderThread extends Thread {
 	public void seekTime(long time, boolean reset) {
 		if (time < 0) return;
 		synchronized (this) {
-			if (time > curTime) {
-				while (nextSample() != null && curTime < time);
-				return;
-			}
-			if (reset) return;
 			synchronized (decoder) {
 				synchronized (samples) {
+					if (time > getTime()) {
+						while (!samples.isEmpty() && getTime() < time) {
+							Triple<AudioFormat,byte[],Double> p = samples.removeFirst();
+							curTime += p.getValue3();
+						}
+						while (time > getTime()) {
+							double skipped = decoder.skipSample();
+							if (skipped < 0) break;
+							curTime += skipped;
+						}
+						return;
+					}
+					if (reset) return;
 					samples.clear();
 					decoder.reset();
 					curTime = 0;
+					seekTime(time, true);
 				}
 			}
-			seekTime(time, true);
 		}
 	}
 	
-	public double getTime() { return curTime; }
+	public double getTime() {
+		return curTime;
+	}
 }

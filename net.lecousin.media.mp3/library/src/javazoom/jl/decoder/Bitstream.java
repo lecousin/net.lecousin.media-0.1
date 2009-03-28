@@ -141,9 +141,20 @@ public final class Bitstream implements BitstreamErrors
 	 */
 	public Bitstream(InputStream in)
 	{
+		this(in, false, false);
+	}
+
+	public Bitstream(InputStream in, boolean isBuffered)
+	{
+		this(in, false, isBuffered);
+	}
+	
+	public Bitstream(InputStream in, boolean headerRead, boolean isBuffered) {
 		if (in==null) throw new NullPointerException("in");
-		in = new BufferedInputStream(in);		
-		loadID3v2(in);
+		if (!isBuffered)
+			in = new BufferedInputStream(in);
+		if (!headerRead)
+			loadID3v2(in);
 		firstframe = true;
 		//source = new PushbackInputStream(in, 1024);
 		source = new PushbackInputStream(in, BUFFER_INT_SIZE*4);

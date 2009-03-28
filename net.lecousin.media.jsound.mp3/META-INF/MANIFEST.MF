@@ -10,6 +10,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.lecousin.framework.files;bundle-version="0.1.0",
  net.lecousin.framework.files.audio;bundle-version="0.1.0",
  net.lecousin.framework.media;bundle-version="0.1.0",
- net.lecousin.media.jsound;bundle-version="0.1.0"
+ net.lecousin.media.jsound;bundle-version="0.1.0",
+ net.lecousin.media.mp3;bundle-version="0.1.0"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy

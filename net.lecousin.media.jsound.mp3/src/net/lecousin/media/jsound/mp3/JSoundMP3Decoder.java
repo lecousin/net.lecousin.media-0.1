@@ -19,14 +19,20 @@ public class JSoundMP3Decoder implements AudioDecoder {
 	
 	private Decoder decoder;
 	private Bitstream bitstream;
+	LCPartialBufferedInputStream stream;
 
 	public void init(LCPartialBufferedInputStream stream) {
+		this.stream = stream;
+		reset();
+	}
+	
+	public synchronized void reset() {
 		stream.move(0);
-		bitstream = new Bitstream(stream);
+		bitstream = new Bitstream(stream, true);
 		decoder = new Decoder();
 	}
 
-	public Pair<AudioFormat,byte[]> decodeSample() {
+	public synchronized Pair<AudioFormat,byte[]> decodeSample() {
 		try {
 			Header h = bitstream.readFrame();
 			

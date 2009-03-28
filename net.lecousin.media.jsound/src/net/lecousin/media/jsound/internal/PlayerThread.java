@@ -26,12 +26,12 @@ public class PlayerThread extends Thread {
 	private AudioFormat format = null;
 	private boolean stopped = false;
 	private boolean paused = false;
-	private double time = 0;
 	private double lastTime = 0;
 	private boolean ended = false;
 	
 	@Override
 	public void run() {
+		plugin.started.fire(media);
 		do {
 			if (paused && !stopped) {
 				plugin.paused.fire(media);
@@ -47,18 +47,21 @@ public class PlayerThread extends Thread {
 			if (source == null || !format.matches(sample.getValue1())) {
 				format = sample.getValue1();
 				try {
-					if (source != null) source.close();
+					SourceDataLine prevSource = source;
 					source = (SourceDataLine)AudioSystem.getLine(new DataLine.Info(SourceDataLine.class, format));
 					source.open(format);
 					source.start();
-					// TODO source.open(fmt); source.start();
+					if (prevSource != null) {
+						prevSource.drain();
+						prevSource.close();
+					}
 				} catch (LineUnavailableException e) {
 					source = null;
 				}
 			}
 			if (source != null)
 				source.write(data, 0, data.length);
-			time += 1000*((double)1000/(double)format.getSampleRate());
+			double time = decoder.getTime();
 			if (((long)lastTime) != ((long)time)) {
 				plugin.timeChanged(media, (long)time);
 				lastTime = time;
@@ -85,14 +88,12 @@ public class PlayerThread extends Thread {
 	}
 	
 	public long getTime() {
-		return (long)time;
+		return (long)decoder.getTime();
 	}
 	public void setTime(long time) {
-		// TODO
+		decoder.seekTime(time);
+		if (source != null)
+			source.flush();
 	}
-//	public int millisecondsToBytes(AudioFormat fmt, int time)
-//	{
-//		return (int)(time*(fmt.getSampleRate()*fmt.getChannels()*fmt.getSampleSizeInBits())/8000.0);
-//	}
 	
 }

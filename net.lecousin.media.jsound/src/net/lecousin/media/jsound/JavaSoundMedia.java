@@ -17,6 +17,7 @@ import net.lecousin.media.jsound.internal.DecoderThread;
 import net.lecousin.media.jsound.internal.PlayerThread;
 
 import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.CoreException;
 
 public class JavaSoundMedia implements Media {
@@ -24,13 +25,32 @@ public class JavaSoundMedia implements Media {
 	JavaSoundMedia(URI uri) {
 		this.uri = uri;
 		fileStream = new LCPartialBufferedInputStream(new StreamProvider() {
+			private IFileStore store = null;
+			private IFileStore getStore() {
+				if (store == null)
+					try { store = EFS.getStore(JavaSoundMedia.this.uri); }
+					catch (CoreException e) {
+						if (Log.error(this))
+							Log.error(this, "Unable to get JavaSoundMedia source.", e);
+					}
+				return store;
+			}
 			public InputStream open() {
-				try { return EFS.getStore(JavaSoundMedia.this.uri).openInputStream(EFS.NONE, null); }
+				IFileStore store = getStore();
+				if (store == null) return null;
+				try { return store.openInputStream(EFS.NONE, null); }
 				catch (CoreException e) {
 					if (Log.error(this))
-						Log.error(this, "Unable to get JavaSoundMedia stream.", e);
+						Log.error(this, "Unable to open JavaSoundMedia stream.", e);
 					return null; 
 				}
+			}
+			public long getSize() {
+				IFileStore store = getStore();
+				if (store == null) return -1;
+				long size = store.fetchInfo().getLength();
+				if (size == EFS.NONE) return -1;
+				return size;
 			}
 		});
 		try {

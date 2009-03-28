@@ -9,6 +9,7 @@ public interface AudioDecoder {
 
 	public void init(LCPartialBufferedInputStream stream);
 	public Pair<AudioFormat,byte[]> decodeSample();
+	public void reset();
 	public void close();
 	
 }

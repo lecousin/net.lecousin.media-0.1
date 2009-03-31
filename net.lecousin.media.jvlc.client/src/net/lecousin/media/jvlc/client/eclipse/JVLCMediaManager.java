@@ -51,6 +51,8 @@ public class JVLCMediaManager implements MediaPlayerPlugin {
 	private Event<Media> stopped = new Event<Media>();
 	private Event<Media> positionChanged = new Event<Media>();
 	private Event<Pair<Media,Long>> timeChanged = new Event<Pair<Media,Long>>();
+	private Event<Double> volumeChanged = new Event<Double>();
+	private Event<Boolean> muteChanged = new Event<Boolean>();
 	private List<JVLCMedia> medias = new LinkedList<JVLCMedia>();
 	private Canvas canvas = null;
 	
@@ -213,7 +215,7 @@ public class JVLCMediaManager implements MediaPlayerPlugin {
 	}
 	public void setVolume(double volume) {
 		JVLCClient.startTransaction();
-		try { jvlc.setVolume(volume); success(); }
+		try { jvlc.setVolume(volume); success(); volumeChanged.fire(volume); }
 		catch (RemoteException e) { if (restart(e)) { setVolume(volume); return; } }
 		finally { JVLCClient.endTransaction(); }
 	}
@@ -226,7 +228,7 @@ public class JVLCMediaManager implements MediaPlayerPlugin {
 	}
 	public void setMute(boolean value) {
 		JVLCClient.startTransaction();
-		try { jvlc.setMute(value); success(); }
+		try { jvlc.setMute(value); success(); muteChanged.fire(value); }
 		catch (RemoteException e) { if (restart(e)) { setMute(value); return; } }
 		finally { JVLCClient.endTransaction(); }
 	}
@@ -269,6 +271,8 @@ public class JVLCMediaManager implements MediaPlayerPlugin {
 	public Event<Media> stopped() { return stopped; }
 	public Event<Media> positionChanged() { return positionChanged; }
 	public Event<Pair<Media,Long>> timeChanged() { return timeChanged; }
+	public Event<Double> volumeChanged() { return volumeChanged; }
+	public Event<Boolean> muteChanged() { return muteChanged; }
 	
 	private class Started implements Listener<IJVLCMedia> {
 		public void fire(IJVLCMedia event) { Media m = getMedia(event); if (m != null) { started.fire(m); ((JVLCMedia)m)._started(); } }

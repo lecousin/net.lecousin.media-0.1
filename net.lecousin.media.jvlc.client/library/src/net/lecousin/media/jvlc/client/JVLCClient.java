@@ -34,6 +34,8 @@ public class JVLCClient {
 	public static Event<IJVLCMedia> ended = new Event<IJVLCMedia>();
 	public static Event<IJVLCMedia> positionChanged = new Event<IJVLCMedia>();
 	public static Event<Pair<IJVLCMedia,Long>> timeChanged = new Event<Pair<IJVLCMedia,Long>>();
+	public static Event<Double> volumeChanged = new Event<Double>();
+	public static Event<Boolean> muteChanged = new Event<Boolean>();
 	
 	public static IJVLCMediaManager get(int port, String path, Listener<Integer> crashListener) throws RemoteException, IOException, NotBoundException {
 		if (launchRegistry(port, path)) { 

@@ -38,6 +38,7 @@ public class PlayerThread extends Thread {
 				while (paused && !stopped) {
 					try { Thread.sleep(100); } catch (InterruptedException e) { break; }
 				}
+				plugin.started.fire(media);
 			}
 			if (stopped) break;
 			Pair<AudioFormat,byte[]> sample = decoder.nextSample();
@@ -68,14 +69,15 @@ public class PlayerThread extends Thread {
 				lastTime = time;
 			}
 		} while (!stopped);
-		if (stopped)
-			plugin.stopped.fire(media);
-		else
-			plugin.ended.fire(media);
-		stopped = true;
 		if (source != null)
 			source.close();
 		ended = true;
+		if (stopped)
+			plugin.stopped.fire(media);
+		else {
+			stopped = true;
+			plugin.ended.fire(media);
+		}
 	}
 	
 	public boolean pausePlayer() {

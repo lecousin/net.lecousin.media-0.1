@@ -97,4 +97,5 @@ public class DecoderThread extends Thread {
 	public double getTime() {
 		return curTime;
 	}
+
 }

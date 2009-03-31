@@ -26,6 +26,8 @@ public class JavaSoundMediaPlayerPlugin implements MediaPlayerPlugin {
 	public Event<Media> ended = new Event<Media>();
 	public Event<Media> positionChanged = new Event<Media>();
 	public Event<Pair<Media, Long>> timeChanged = new Event<Pair<Media,Long>>();
+	public Event<Double> volumeChanged = new Event<Double>();
+	public Event<Boolean> muteChanged = new Event<Boolean>();
 	private ThreadEvents threadEvents = new ThreadEvents();
 	
 	public Media newMedia(URI uri) {
@@ -71,17 +73,16 @@ public class JavaSoundMediaPlayerPlugin implements MediaPlayerPlugin {
 	
 	
 	public double getVolume() {
-		return 0; // TODO
+		return 100;
 	}
 	public void setVolume(double volume) {
-		// TODO Auto-generated method stub
+		volumeChanged.fire(new Double(100));
 	}
 	public boolean getMute() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 	public void setMute(boolean value) {
-		// TODO Auto-generated method stub
+		muteChanged.fire(Boolean.FALSE);
 	}
 
 
@@ -92,6 +93,8 @@ public class JavaSoundMediaPlayerPlugin implements MediaPlayerPlugin {
 	public Event<Media> ended() { return ended; }
 	public Event<Media> positionChanged() { return positionChanged; }
 	public Event<Pair<Media, Long>> timeChanged() { return timeChanged; }
+	public Event<Double> volumeChanged() { return volumeChanged; }
+	public Event<Boolean> muteChanged() { return muteChanged; }
 
 	public Control createVisual(Composite parent) {
 		return null;

@@ -31,7 +31,7 @@ public class JSoundMP3Decoder implements AudioDecoder {
 		bitstream = new Bitstream(stream, true);
 		decoder = new Decoder();
 	}
-
+	
 	public synchronized Triple<AudioFormat,byte[],Double> decodeSample() {
 		try {
 			Header h = bitstream.readFrame();

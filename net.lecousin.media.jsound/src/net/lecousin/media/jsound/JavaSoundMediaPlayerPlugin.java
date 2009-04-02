@@ -8,6 +8,7 @@ import net.lecousin.framework.Pair;
 import net.lecousin.framework.event.Event;
 import net.lecousin.framework.media.Media;
 import net.lecousin.framework.media.MediaPlayerPlugin;
+import net.lecousin.framework.media.UnsupportedFormatException;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -47,7 +48,7 @@ public class JavaSoundMediaPlayerPlugin implements MediaPlayerPlugin {
 	}
 
 	
-	public void start(Media media) {
+	public void start(Media media) throws UnsupportedFormatException {
 		((JavaSoundMedia)media).start(this);
 	}
 	public void pause(Media media) {

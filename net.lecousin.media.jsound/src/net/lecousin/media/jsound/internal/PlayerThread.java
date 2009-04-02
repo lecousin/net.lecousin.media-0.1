@@ -7,6 +7,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
 import net.lecousin.framework.Pair;
+import net.lecousin.framework.log.Log;
 import net.lecousin.media.jsound.JavaSoundMedia;
 import net.lecousin.media.jsound.JavaSoundMediaPlayerPlugin;
 
@@ -58,6 +59,12 @@ public class PlayerThread extends Thread {
 						prevSource.close();
 					}
 				} catch (LineUnavailableException e) {
+					if (Log.error(this))
+						Log.error(this, "Unable to get audio line", e);
+					source = null;
+				} catch (IllegalArgumentException e) {
+					if (Log.error(this))
+						Log.error(this, "Unable to get audio line for the audio format", e);
 					source = null;
 				}
 			}
@@ -86,7 +93,7 @@ public class PlayerThread extends Thread {
 	
 	public void stopPlayer() {
 		stopped = true;
-		while (!ended)
+		while (!ended && isAlive())
 			try { Thread.sleep(10); } catch (InterruptedException e) {}
 	}
 	

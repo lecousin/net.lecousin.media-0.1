@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Java Sound Sampled - Wav
+Bundle-SymbolicName: net.lecousin.media.jsound.wav;singleton:=true
+Bundle-Version: 0.1.0
+Bundle-Activator: net.lecousin.media.jsound.wav.internal.EclipsePlugin
+Bundle-Vendor: Guillaume LE COUSIN
+Require-Bundle: org.eclipse.core.runtime,
+ net.lecousin.framework.files.audio;bundle-version="0.1.0",
+ net.lecousin.media.jsound;bundle-version="0.1.0",
+ net.lecousin.framework;bundle-version="0.1.0",
+ net.lecousin.media.mp3;bundle-version="0.1.0",
+ net.lecousin.framework.files;bundle-version="0.1.0"
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-ActivationPolicy: lazy

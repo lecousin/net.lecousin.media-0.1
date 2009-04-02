@@ -13,6 +13,7 @@ import net.lecousin.framework.io.LCPartialBufferedInputStream;
 import net.lecousin.framework.io.LCPartialBufferedInputStream.StreamProvider;
 import net.lecousin.framework.log.Log;
 import net.lecousin.framework.media.Media;
+import net.lecousin.framework.media.UnsupportedFormatException;
 import net.lecousin.media.jsound.internal.DecoderThread;
 import net.lecousin.media.jsound.internal.PlayerThread;
 
@@ -87,15 +88,15 @@ public class JavaSoundMedia implements Media {
 		try { fileStream.close(); } catch (IOException e) {}
 	}
 	
-	void start(JavaSoundMediaPlayerPlugin plugin) {
+	void start(JavaSoundMediaPlayerPlugin plugin) throws UnsupportedFormatException {
 		if (player != null && paused) {
 			pause();
 			return;
 		}
 		paused = false;
 		AudioDecoder dec = AudioDecoderPlugins.get(file);
+		if (dec == null) throw new UnsupportedFormatException();
 		dec.init(fileStream);
-		if (dec == null) return;
 		decoder = new DecoderThread(dec);
 		decoder.start();
 		player = new PlayerThread(decoder, this, plugin);

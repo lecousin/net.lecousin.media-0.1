@@ -4,7 +4,7 @@
    <extension
          point="net.lecousin.media.jsound.decoder">
       <decoder
-            provider="net.lecousin.media.jsound.mp3.MP3AudioDecoderProvider">
+            provider="net.lecousin.media.jsound.wav.WAVAudioDecoderProvider">
       </decoder>
    </extension>
 

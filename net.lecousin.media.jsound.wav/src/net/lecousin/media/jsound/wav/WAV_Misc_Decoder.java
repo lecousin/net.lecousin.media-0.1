@@ -8,6 +8,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import net.lecousin.framework.Triple;
+import net.lecousin.framework.io.LCMovableInputStream;
 import net.lecousin.framework.io.LCPartialBufferedInputStream;
 import net.lecousin.framework.log.Log;
 import net.lecousin.media.jsound.AudioDecoder;
@@ -18,27 +19,33 @@ public class WAV_Misc_Decoder implements AudioDecoder {
 	}
 	
 	private AudioInputStream stream = null;
+	private LCMovableInputStream initialStream = null;
 	
 	public void init(LCPartialBufferedInputStream stream) {
-		try { this.stream = AudioSystem.getAudioInputStream(stream); }
-		catch (IOException e) {
-			if (Log.error(this))
-				Log.error(this, "Unable to get AudioInputStream from WAV", e);
-		} catch (UnsupportedAudioFileException e) {
-			if (Log.error(this))
-				Log.error(this, "Unsupported WAV format", e);
-		}
+		this.initialStream = stream;
+		reset();
 	}
 
-	private byte[] buffer = new byte[65536];
 	public Triple<AudioFormat, byte[], Double> decodeSample() {
 		if (stream == null) return null;
+		AudioFormat fmt = stream.getFormat();
+		float sr = fmt.getSampleRate();
+		int ss = fmt.getSampleSizeInBits();
+		int ch = fmt.getChannels();
+		// buffer for 1s.
+		byte[] buffer = new byte[(int)(sr*ch*ss/8)];
 		try {
 			int nb = stream.read(buffer);
 			if (nb <= 0) return null;
-			byte[] buf = new byte[nb];
-			System.arraycopy(buffer, 0, buf, 0, nb);
-			return new Triple<AudioFormat, byte[], Double>(stream.getFormat(), buf, new Double(1));
+			byte[] buf;
+			if (nb == buffer.length)
+				buf = buffer;
+			else {
+				buf = new byte[nb];
+				System.arraycopy(buffer, 0, buf, 0, nb);
+			}
+			double time = ((double)(nb*1000*8))/(double)(sr*ss*ch);
+			return new Triple<AudioFormat, byte[], Double>(fmt, buf, time);
 		} catch (IOException e) {
 			if (Log.error(this))
 				Log.error(this, "Error while reading WAV", e);
@@ -53,13 +60,26 @@ public class WAV_Misc_Decoder implements AudioDecoder {
 	}
 
 	public void reset() {
-		// TODO Auto-generated method stub
-
+		try { 
+			initialStream.move(0);
+			this.stream = AudioSystem.getAudioInputStream(initialStream); 
+		}
+		catch (IOException e) {
+			if (Log.error(this))
+				Log.error(this, "Unable to get AudioInputStream from WAV", e);
+		} catch (UnsupportedAudioFileException e) {
+			if (Log.error(this))
+				Log.error(this, "Unsupported WAV format", e);
+		}
 	}
 
 	public double skipSample() {
-		// TODO Auto-generated method stub
-		return 10000;
+		AudioFormat fmt = stream.getFormat();
+		try {
+			stream.skip((long)(fmt.getSampleRate()*fmt.getSampleSizeInBits()*fmt.getChannels()/8));
+		} catch (IOException e) {
+		}
+		return 1000;
 	}
 
 }

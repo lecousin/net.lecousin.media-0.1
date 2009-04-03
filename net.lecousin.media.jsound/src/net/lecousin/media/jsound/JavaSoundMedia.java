@@ -96,6 +96,7 @@ public class JavaSoundMedia implements Media {
 		paused = false;
 		AudioDecoder dec = AudioDecoderPlugins.get(file);
 		if (dec == null) throw new UnsupportedFormatException();
+		fileStream.move(0);
 		dec.init(fileStream);
 		decoder = new DecoderThread(dec);
 		decoder.start();

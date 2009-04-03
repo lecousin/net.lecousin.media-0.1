@@ -17,7 +17,12 @@ public class WAVAudioDecoderProvider implements AudioDecoderProvider {
 			if (wav != null) {
 				if (wav.getCompression() == WAVFormat.COMP_MP3)
 					return new WAV_MP3_Decoder(wav.getDataChunkPos() >= 0 ? wav.getDataChunkPos() : 0);
-				//return new WAV_Misc_Decoder();
+				if (wav.getCompression() == WAVFormat.COMP_PCM)
+					return new WAV_Misc_Decoder();
+//				if (Log.info(this))
+//					Log.info(this, "Try WAV Misc decoder, compression="+wav.getCompression());
+//				// 0x11 KO
+//				return new WAV_Misc_Decoder();
 			}
 		}
 		return null;

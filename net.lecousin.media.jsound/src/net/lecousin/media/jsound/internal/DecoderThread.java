@@ -20,6 +20,7 @@ public class DecoderThread extends Thread {
 	private LinkedList<Triple<AudioFormat,byte[],Double>> samples = new LinkedList<Triple<AudioFormat,byte[],Double>>();
 	private boolean stopped = false;
 	private double curTime = 0;
+	private boolean endReached = false;
 	
 	@Override
 	public void run() {
@@ -30,11 +31,14 @@ public class DecoderThread extends Thread {
 			Triple<AudioFormat,byte[],Double> sample;
 			synchronized (decoder) {
 				sample = decoder.decodeSample();
-				if (sample == null)
-					break;
 				synchronized (samples) {
 					samples.add(sample);
 				}
+			}
+			// if at the end, wait in case a seek is performed
+			if (sample == null && !stopped) {
+				endReached = true;
+				try { Thread.sleep(250); } catch (InterruptedException e) { break; }
 			}
 		} while (!stopped);
 		stopped = true;
@@ -57,6 +61,7 @@ public class DecoderThread extends Thread {
 					curTime += p.getValue3();
 					return new Pair<AudioFormat,byte[]>(p.getValue1(),p.getValue2());
 				}
+				if (endReached) return null;
 				if (stopped) return null;
 				try { Thread.sleep(1); } catch (InterruptedException e) { return null; }
 				if (stopped) return null;
@@ -88,6 +93,7 @@ public class DecoderThread extends Thread {
 					samples.clear();
 					decoder.reset();
 					curTime = 0;
+					endReached = false;
 					seekTime(time, true);
 				}
 			}

@@ -60,15 +60,20 @@ public class JVLCClient {
 		Map<String,String> env = System.getenv();
 		String[] envp = new String[env.size()];
 		int i = 0;
+		boolean cpSet = false;
 		for (String s : env.keySet())
-			if (s.equalsIgnoreCase("classpath"))
+			if (s.equalsIgnoreCase("classpath")) {
 				envp[i++] = s + "=" + env.get(s) + ";" + path+"/net.lecousin.media.jvlc.common.jar";
-			else
+				cpSet = true;
+			} else
 				envp[i++] = s + "=" + env.get(s);
+		if (!cpSet)
+			envp[i++] = "CLASSPATH=" + path+"/net.lecousin.media.jvlc.common.jar";
 //		if (System.getSecurityManager() == null)
 //			System.setSecurityManager(new RMISecurityManager());
 //		LocateRegistry.createRegistry(port);
-		Application.ensureRunningProcess("JVLCRegistry"+port, System.getProperty("java.home") + "/bin/rmiregistry.exe "+port, envp, null, null, null);
+		String options = "-J-cp \"-J" + path+"/net.lecousin.media.jvlc.common.jar" + "\" ";
+		Application.ensureRunningProcess("JVLCRegistry"+port, System.getProperty("java.home") + "/bin/rmiregistry.exe "+options+port, envp, null, null, null);
 		/*
 		Application.ensureRunningJAR(
 				"JVLCRMIRegistry"+port, 
@@ -145,7 +150,7 @@ public class JVLCClient {
 				path+"/net.lecousin.media.jvlc.server.jar", 
 				path,
 				"",
-				"-vlc " + path + "\\vlc" + " -port " + port, 
+				"-vlc \"" + path + "\\vlc\"" + " -port " + port, 
 				envp,
 			new ProcessChecker() {
 					private boolean ready = false;

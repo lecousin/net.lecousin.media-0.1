@@ -148,24 +148,26 @@ public class JVLCClient {
 		serverProcess = Application.ensureRunningJAR(
 				"JVLCServer"+port, 
 				path+"/net.lecousin.media.jvlc.server.jar", 
-				path,
+				path+"/net.lecousin.media.jvlc.server.jar;"+path+"/net.lecousin.media.jvlc.common.jar",
 				"",
 				"-vlc \"" + path + "\\vlc\"" + " -port " + port, 
 				envp,
 			new ProcessChecker() {
 					private boolean ready = false;
+					private long lastSomething = System.currentTimeMillis();
 					public ProcessChecker processOutput(String line) {
 						if (line.contains("JVLCServer ready.")) {
 							ready = true;
 							return null;
 						}
+						lastSomething = System.currentTimeMillis();
 						return this;
 					}
 					public void waitReady() {
 						if (Log.info(JVLCClient.class))
 							Log.info(JVLCClient.class, "Starting JVLCServer");
 						long start = System.currentTimeMillis();
-						while (!ready && System.currentTimeMillis()-start < 10000)
+						while (!ready && System.currentTimeMillis()-start < 20000 && (System.currentTimeMillis() - lastSomething < 10000))
 							try { Thread.sleep(10); } catch (InterruptedException e) { break; }
 						if (!ready) {
 							if (Log.error(this))

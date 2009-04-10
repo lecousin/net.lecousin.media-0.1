@@ -167,7 +167,7 @@ public class JVLCClient {
 						if (Log.info(JVLCClient.class))
 							Log.info(JVLCClient.class, "Starting JVLCServer");
 						long start = System.currentTimeMillis();
-						while (!ready && System.currentTimeMillis()-start < 20000 && (System.currentTimeMillis() - lastSomething < 10000))
+						while (!ready && System.currentTimeMillis()-start < 20000 && (System.currentTimeMillis() - lastSomething < 5000))
 							try { Thread.sleep(10); } catch (InterruptedException e) { break; }
 						if (!ready) {
 							if (Log.error(this))
